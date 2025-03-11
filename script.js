@@ -798,7 +798,7 @@ function showModal(title, content) {
     const contributorBadge = promptCard.querySelector(".contributor-badge");
     if (contributorBadge) {
       modalContributor.href = contributorBadge.href;
-      modalContributor.textContent = `Contributed by ${contributorBadge.textContent}`;
+      modalContributor.textContent = `${contributorBadge.textContent}`;
     }
   }
 
