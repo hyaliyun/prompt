@@ -721,16 +721,32 @@
       }
 
       .prompt-card {
-        background: var(--bg-color-light);
-        border: 1px solid #e1e4e8;
-        border-radius: 12px;
-        padding: 16px;
-        position: relative;
-        transition: transform 0.2s ease;
-        display: flex;
-        flex-direction: column;
-        min-height: 200px;
-      }
+  background: var(--bg-color-light);
+  border: 1px solid #e1e4e8;
+  border-radius: 12px;
+  padding: 16px;
+  position: relative;
+  transition: transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  height: 250px; /* 设置固定高度 */
+  min-height: 200px; /* 保留最小高度兼容性 */
+  overflow: hidden; /* 防止内容溢出 */
+}
+
+.prompt-content {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-color-light);
+  opacity: 0.8;
+  flex-grow: 1; /* 让内容区域自适应剩余空间 */
+  overflow: hidden; /* 隐藏溢出内容 */
+  text-overflow: ellipsis; /* 超出部分显示省略号 */
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* 限制显示4行 */
+  -webkit-box-orient: vertical;
+  margin-bottom: 40px;
+}
 
       .dark-mode .prompt-card {
         background: var(--bg-color-dark);
@@ -754,18 +770,6 @@
 
       .dark-mode .prompt-title {
         color: var(--text-color-dark);
-      }
-
-      .prompt-content {
-        font-size: 0.9rem;
-        line-height: 1.5;
-        color: var(--text-color-light);
-        opacity: 0.8;
-        display: -webkit-box;
-        -webkit-line-clamp: 4;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        margin-bottom: 40px;
       }
 
       .dark-mode .prompt-content {
@@ -2142,19 +2146,23 @@
 
 // 假设 parseCSV 函数已调整以正确解析 contributor 字段
 function parseCSV(csv) {
-      const lines = csv.split("\n").filter(line => line.trim() !== ""); // 移除空行
-      const headers = lines[0].split(",").map(header => header.replace(/"/g, "").trim());
-      return lines.slice(1).map((line) => {
-        const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-        const entry = {};
-        headers.forEach((header, index) => {
-          let value = values[index] ? values[index].replace(/"/g, "").trim() : "";
-          if (header === "for_devs") value = value.toUpperCase() === "TRUE";
-          entry[header] = value;
-        });
-        return entry;
-      }).filter(entry => entry.act || entry.prompt); // 确保至少有 act 或 prompt
-    }
+  const lines = csv.split("\n");
+  const headers = lines[0].split(",").map((header) => header.replace(/"/g, "").trim());
+
+  return lines.slice(1).map((line) => {
+    const values = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+    const entry = {};
+
+    headers.forEach((header, index) => {
+      let value = values[index] ? values[index].replace(/"/g, "").trim() : "";
+      if (header === "act") value = value.replace(/`/g, "");
+      if (header === "for_devs") value = value.toUpperCase() === "TRUE";
+      entry[header] = value;
+    });
+
+    return entry;
+  }).filter((entry) => entry.act && entry.prompt);
+}
       // Initialize audience selector
       const audienceSelect = document.getElementById('audienceSelect');
       
